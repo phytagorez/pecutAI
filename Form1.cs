@@ -34,6 +34,8 @@ namespace gtauGabut
 
             dgvBarang.DataSource = dtBarang;
             HitungTotal();
+
+            dgvBarang.AllowUserToAddRows = false;
         }
 
         private void btnCheckout_Click(object sender, EventArgs e)
@@ -71,6 +73,35 @@ namespace gtauGabut
                 }
             }
             lblTotal.Text = $"Total: Rp{total:N0}";
+        }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            foreach (DataRow row in dtBarang.Rows)
+            {
+                row["Pilih"] = false;
+            }
+            HitungTotal();
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            string receipt = "=== STRUK BELANJA ===\n\n";
+            int total = 0;
+
+            foreach (DataRow row in dtBarang.Rows)
+            {
+                if ((bool)row["Pilih"])
+                {
+                    int subtotal = (int)row["Harga"] * (int)row["Qty"];
+                    total += subtotal;
+                    receipt += $"{row["Barang"]} x{row["Qty"]} = Rp{subtotal:N0}\n";
+                }
+            }
+            receipt += $"\nTOTAL: Rp{total:N0}\nTanggal: {DateTime.Now:dd-MM-yyyy HH:mm}";
+
+            System.IO.File.WriteAllText("struk.txt", receipt);
+            MessageBox.Show("✅ Struk disimpan di struk.txt!");
         }
     }
 }
